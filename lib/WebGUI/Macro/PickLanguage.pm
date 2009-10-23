@@ -42,14 +42,21 @@ This macro takes no parameters
 #-------------------------------------------------------------------
 sub process {
 	my $session = shift;
+	my $templateId = shift;
+	my $template = WebGUI::Asset::Template->new($session, $templateId);
+        return "Could not instanciate template with id [$specialsTemplateId]" unless $template;
 	my $i18n = WebGUI::International->new($session);
 	my $languages = $i18n->getLanguages();
-	my $outputLinks;
+	my $vars;
+	my $langVars = {};
 	foreach my $language ( keys %$languages ) {
-		my $linkText = $i18n->getLanguage($language , 'label');
-		$outputLinks .= '<a href="?op=setLanguage;language='. $language .'">'. $linkText . ' </a>';
+		$langVars->{ url } = '?op=setLanguage;language=' . $language ;
+		$langVars->{ lang } = $i18n->getLanguage($language , 'label');
+		$langVars->{ langAbbr } = $i18n->getLanguage($language, 'languageAbbreviation');
+		$langVars->{ langAbbrCap } = $i18n->getLanguage($language, 'locale');
+		push(@{$var->{lang_loop}}, $langVars);
 	}
-	return $outputLinks;
+	return $template->process($vars);
 }
 
 1;
