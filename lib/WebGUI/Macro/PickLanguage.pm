@@ -30,9 +30,9 @@ The main macro class, Macro.pm, will call this subroutine and pass it
 
 A session variable
 
-=item *
+=item templateId
 
-This macro takes no parameters
+This macro takes a templateId to show the links
 
 =back
 
@@ -44,17 +44,18 @@ sub process {
 	my $session = shift;
 	my $templateId = shift;
 	my $template = WebGUI::Asset::Template->new($session, $templateId);
-        return "Could not instanciate template with id [$specialsTemplateId]" unless $template;
+        return "Could not instanciate template with id [$templateId]" unless $template;
 	my $i18n = WebGUI::International->new($session);
 	my $languages = $i18n->getLanguages();
-	my $vars;
-	my $langVars = {};
+	my $vars = {'lang_loop' => []};
 	foreach my $language ( keys %$languages ) {
-		$langVars->{ url } = '?op=setLanguage;language=' . $language ;
-		$langVars->{ lang } = $i18n->getLanguage($language , 'label');
-		$langVars->{ langAbbr } = $i18n->getLanguage($language, 'languageAbbreviation');
-		$langVars->{ langAbbrCap } = $i18n->getLanguage($language, 'locale');
-		push(@{$var->{lang_loop}}, $langVars);
+		my $langVars = {};
+		$langVars->{ 'language_url' } = '?op=setLanguage;language=' . $language ;
+		$langVars->{ 'language_lang' } = $i18n->getLanguage($language , 'label');
+		$langVars->{ 'language_langAbbr' } = $i18n->getLanguage($language, 'languageAbbreviation');
+		$langVars->{ 'language_langAbbrLoc' } = $i18n->getLanguage($language, 'locale');
+		$langVars->{ 'language_langEng' } = $language;
+		push(@{$vars->{lang_loop}}, $langVars);
 	}
 	return $template->process($vars);
 }
